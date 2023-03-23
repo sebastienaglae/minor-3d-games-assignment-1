@@ -21,13 +21,14 @@ import "@babylonjs/loaders/glTF";
 import { SpaceshipController } from "./SpaceshipController";
 import { FireEffect } from "./FireEffect";
 import { ToonMaterial } from "./material/ToonMaterial";
+import { AwesomeFollowCamera } from "./AwesomeFollowCamera";
 
 // create a class to hold the scene and camera export it
 export class App {
   private _canvas: HTMLCanvasElement;
   private _engine: Engine;
   private _scene: Scene;
-  private _camera: FreeCamera;
+  private _camera: AwesomeFollowCamera;
 
   constructor(canvasElement: string) {
     this._canvas = document.getElementById(canvasElement) as HTMLCanvasElement;
@@ -38,10 +39,12 @@ export class App {
     this._scene.enablePhysics(new Vector3(0, -9.81, 0), physicsPlugin);
 
     // Create a camera that follow
-    this._camera = new FreeCamera(
+    this._camera = new AwesomeFollowCamera(
       "camera",
-      new Vector3(0, 0, -10),
-      this._scene
+      Math.PI / 2,
+      Math.PI / 2,
+      10,
+      this._scene,
     );
     //set render camera distance to 20000
     this._camera.maxZ = 20000;
@@ -98,8 +101,8 @@ export class App {
         let b2 = new FireEffect(this._scene, fireEffect1);
         b1.start();
         b2.start();
-        
-        new SpaceshipController(spaceship, this._scene, this._camera, [b1,b2]);
+
+        new SpaceshipController(spaceship, this._scene, this._camera, [b1, b2]);
       }
     );
 

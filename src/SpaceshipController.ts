@@ -34,13 +34,14 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { FireEffect } from "./FireEffect";
+import { AwesomeFollowCamera } from './AwesomeFollowCamera';
 
 // Keep it simple
 export class SpaceshipController {
   // simple
   private _spaceship: AbstractMesh;
   private _scene: Scene;
-  private _camera: FreeCamera;
+  private _camera: AwesomeFollowCamera;
   private _speed: number;
   private _velocity: Vector3;
   private _maxSpeed: number;
@@ -57,12 +58,13 @@ export class SpaceshipController {
   private _isGoingLeft: boolean;
   private _isGoingRight: boolean;
   private _isGoingForward: boolean;
+  private _isGoingBackward: boolean;
   private _boosters: FireEffect[];
 
   constructor(
     spaceship: AbstractMesh,
     scene: Scene,
-    camera: FreeCamera,
+    camera: AwesomeFollowCamera,
     boosters: FireEffect[]
   ) {
     this._spaceship = spaceship;
@@ -84,6 +86,7 @@ export class SpaceshipController {
     this._isGoingLeft = false;
     this._isGoingRight = false;
     this._isGoingForward = false;
+    this._isGoingBackward = false;
     this._boosters = boosters;
     this._spaceship.physicsImpostor = new PhysicsImpostor(
       this._spaceship,
@@ -91,13 +94,9 @@ export class SpaceshipController {
       { mass: 0, restitution: 0.9 },
       this._scene
     );
-    // this._camera.lockedTarget = this._spaceship;
-    // this._camera.inertia = 0.9;s
-    // set the camera as a child of the spaceship and put 10 units in front of it
-    this._camera.parent = this._spaceship;
-    this._camera.position = new Vector3(0, 1.5, 10);
-    this._camera.rotation.y = Math.PI;
-    this._camera.setTarget(this._spaceship.position);
+
+    this._camera.setDistanceOffset(10)
+    // this._camera.setTarget(this._spaceship)
 
     this._scene.onBeforeRenderObservable.add(() => {
       this._update();
@@ -147,12 +146,18 @@ export class SpaceshipController {
             case 0:
               this._isGoingForward = true;
               break;
+            case 2:
+              this._isGoingBackward = true;
+              break;
           }
           break;
         case PointerEventTypes.POINTERUP:
           switch (pointerInfo.event.button) {
             case 0:
               this._isGoingForward = false;
+              break;
+            case 2:
+              this._isGoingBackward = false;
               break;
           }
           break;
@@ -170,6 +175,29 @@ export class SpaceshipController {
         this._speed = this._maxSpeed;
       }
     }
+    //deceleration
+    if (this._isGoingBackward) {
+      isPressed = true;
+      this._isMoving = true;
+      this._speed -= this._acceleration;
+      if (this._speed < -this._maxSpeed) {
+        this._speed = -this._maxSpeed;
+      }
+    }
+    if (!this._isGoingForward && !this._isGoingBackward) {
+      if (this._speed > 0) {
+        this._speed -= this._deceleration;
+        if (this._speed < 0) {
+          this._speed = 0;
+        }
+      } else if (this._speed < 0) {
+        this._speed += this._deceleration;
+        if (this._speed > 0) {
+          this._speed = 0;
+        }
+      }
+    }
+
     if (this._isGoingLeft) {
       isPressed = true;
       this._isRotating = true;
@@ -222,16 +250,17 @@ export class SpaceshipController {
       }
     }
 
-      this._spaceship.moveWithCollisions(this._velocity);
-      for (let booster of this._boosters) {
-        booster.changeEmitRate(this.clamp(this._speed * 30, 10, 600));
-      }
+    this._spaceship.moveWithCollisions(this._velocity);
+    for (let booster of this._boosters) {
+      booster.changeEmitRate(this.clamp(this._speed * 30, 10, 600));
+    }
     this._moveCamera();
   }
 
   private _moveCamera() {
-    var maxFov = 2;
-    this._camera.fov = this.clamp(this._speed / 10 + 0.5, 0.8, maxFov);
+    // var maxFov = 2;
+    // this._camera.fov = this.clamp(this._speed / 10 + 0.5, 0.8, maxFov);
+
   }
 
   private clamp(value: number, min: number, max: number) {
