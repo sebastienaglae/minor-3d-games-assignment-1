@@ -1,1 +1,0 @@
-# minor-3d-games-assignment-1
