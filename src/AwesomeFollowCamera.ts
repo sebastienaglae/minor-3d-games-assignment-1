@@ -23,7 +23,6 @@ export class AwesomeFollowCamera extends ArcRotateCamera {
   private _heightOffset: number;
   private _distanceOffset: number;
   private subTarget: AbstractMesh;
-  private sphere: Mesh;
 
   constructor(
     name: string,
@@ -38,25 +37,22 @@ export class AwesomeFollowCamera extends ArcRotateCamera {
   public setTarget(target: AbstractMesh) {
     // super.setTarget(target);
     this.subTarget = target;
-    this.sphere = MeshBuilder.CreateSphere(
-      "sphere",
-      { diameter: 0.1 },
-      this._scene
-    );
-
-    this.sphere.parent = this.subTarget;
-    this.sphere.position = new Vector3(0, 0, this._distanceOffset);
-
-    //   super.setTarget(this.sphere);
   }
 
-    public update() {
-      super.update();
-    // lerp to the sphere
-      if (!this.sphere) return;
-      this.position = Vector3.Lerp(this.position, this.sphere.absolutePosition, 0.1);
-      console.log(this.position)
-      
+
+  public update() {
+    super.update();
+
+    if (!this.subTarget) {
+      return;
+    }
+
+    // Use the camera direction to always see the target. Don't move the camera using the position. The camera is stationary
+    let direction = this.getDirection(new Vector3(0, 0, 0));
+    direction.normalize();
+
+    
+
   }
 
   public getHeightOffset(): number {

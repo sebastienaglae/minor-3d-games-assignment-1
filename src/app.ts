@@ -116,7 +116,7 @@ export class App {
     });
 
     //show debug layer
-    this._scene.debugLayer.show();
+    // this._scene.debugLayer.show();
   }
 
   private createPlanets() {

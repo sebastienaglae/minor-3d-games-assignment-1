@@ -96,7 +96,7 @@ export class SpaceshipController {
     );
 
     this._camera.setDistanceOffset(10)
-    // this._camera.setTarget(this._spaceship)
+    this._camera.setTarget(this._spaceship)
 
     this._scene.onBeforeRenderObservable.add(() => {
       this._update();
@@ -252,7 +252,7 @@ export class SpaceshipController {
 
     this._spaceship.moveWithCollisions(this._velocity);
     for (let booster of this._boosters) {
-      booster.changeEmitRate(this.clamp(this._speed * 30, 10, 600));
+      booster.changeEmitRate(this.clamp(this._speed * 30, 600, 600));
     }
     this._moveCamera();
   }
