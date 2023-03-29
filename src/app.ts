@@ -44,7 +44,7 @@ export class App {
       Math.PI / 2,
       Math.PI / 2,
       10,
-      this._scene,
+      this._scene
     );
     //set render camera distance to 20000
     this._camera.maxZ = 20000;
@@ -54,26 +54,26 @@ export class App {
     // create a ground
     const ground = MeshBuilder.CreateGround(
       "ground",
-      { width: 6, height: 6 },
+      { width: 60, height: 60 },
       this._scene
     );
 
-    var skybox = MeshBuilder.CreateBox(
-      "skyBox",
-      { size: 10000.0 },
-      this._scene
-    );
-    var skyboxMaterial = new StandardMaterial("skyBox", this._scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new CubeTexture(
-      "obj/skybox/skybox",
-      this._scene
-    );
-    skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
-    skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
-    skyboxMaterial.specularColor = new Color3(0, 0, 0);
-    skybox.infiniteDistance = true;
-    skybox.material = skyboxMaterial;
+    // var skybox = MeshBuilder.CreateBox(
+    //   "skyBox",
+    //   { size: 10000.0 },
+    //   this._scene
+    // );
+    // var skyboxMaterial = new StandardMaterial("skyBox", this._scene);
+    // skyboxMaterial.backFaceCulling = false;
+    // skyboxMaterial.reflectionTexture = new CubeTexture(
+    //   "obj/skybox/skybox",
+    //   this._scene
+    // );
+    // skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+    // skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+    // skyboxMaterial.specularColor = new Color3(0, 0, 0);
+    // skybox.infiniteDistance = true;
+    // skybox.material = skyboxMaterial;
 
     SceneLoader.ImportMeshAsync("", "obj/", "spaceship.glb", this._scene).then(
       (result) => {
@@ -106,7 +106,7 @@ export class App {
       }
     );
 
-    this.createPlanets();
+    // this.createPlanets();
     this._engine.runRenderLoop(() => {
       this._scene.render();
     });
@@ -116,7 +116,7 @@ export class App {
     });
 
     //show debug layer
-    // this._scene.debugLayer.show();
+    this._scene.debugLayer.show();
   }
 
   private createPlanets() {

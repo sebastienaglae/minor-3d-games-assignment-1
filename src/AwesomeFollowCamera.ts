@@ -1,73 +1,76 @@
-// Do a camera based on a free camera that follow a target and stay always behind it (rotate to saty a t the back)
-// There is velocity and acceleration to make the camera move smoothly like a follow camera
-// keep it simple
-// don't do getter and setter for now
-// Do a class that extends FreeCamera
-// Add an heigh offset
-// Add distance offset
-// Don't based this script on the spaceship
-// Do a simple script that follow a target
-
 import {
-  AbstractMesh,
   ArcRotateCamera,
-  FreeCamera,
-  Mesh,
   MeshBuilder,
-  Scene,
-  TransformNode,
+  Quaternion,
   Vector3,
 } from "@babylonjs/core";
 
 export class AwesomeFollowCamera extends ArcRotateCamera {
-  private _heightOffset: number;
-  private _distanceOffset: number;
-  private subTarget: AbstractMesh;
+  setPosLerp(arg0: number) {
+    this.sphereTarget.position = Vector3.Lerp(
+      this.sphereTarget.position,
+      this.realTarget.position.add(this.realTarget.forward.scale(arg0)),
+      0.9
+    );
+  }
+  setPos(arg0: number) {
+    this.sphereTarget.position = this.realTarget.position.add(
+      this.realTarget.forward.scale(arg0)
+    );
+  }
+  getDistance() {
+    return this.realTarget.position.subtract(this.sphereTarget.position).length();
+  }
+
+  updateRotation() {
+    // rotate the sphere to look at the target
+    // this.sphereTarget.lookAt(this.realTarget.position, 0, Math.PI, 0);
+    // invert rotation of the sphere
+    this.sphereTarget.rotation = this.realTarget.rotationQuaternion.toEulerAngles();
+    
+
+    
+  }
+
+  private realTarget: any;
+  private sphereTarget: any;
 
   constructor(
     name: string,
     alpha: number,
     beta: number,
     radius: number,
-    scene: Scene
+    scene: any,
+    setActiveOnSceneIfNoneActive = true
   ) {
-    super(name, alpha, beta, radius, null, scene);
+    super(
+      name,
+      alpha,
+      beta,
+      radius,
+      Vector3.Zero(),
+      scene,
+      setActiveOnSceneIfNoneActive
+    );
+    this.alpha = alpha;
+    this.beta = beta;
+    this.radius = radius;
+    this.realTarget = null;
   }
 
-  public setTarget(target: AbstractMesh) {
-    // super.setTarget(target);
-    this.subTarget = target;
+  public override setTarget(target: any): void {
+    this.realTarget = target;
+    this.sphereTarget = MeshBuilder.CreateSphere(
+      "subTarget",
+      { diameter: 0.1 },
+      this.getScene()
+    );
+
+    // camera child of the sphereTarget
+    this.parent = this.sphereTarget;
   }
 
-
-  public update() {
+  public override update(): void {
     super.update();
-
-    if (!this.subTarget) {
-      return;
-    }
-
-    // Use the camera direction to always see the target. Don't move the camera using the position. The camera is stationary
-    let direction = this.getDirection(new Vector3(0, 0, 0));
-    direction.normalize();
-
-    
-
-  }
-
-  public getHeightOffset(): number {
-    return this._heightOffset;
-  }
-
-  public setHeightOffset(value: number) {
-    this._heightOffset = value;
-  }
-
-  public getDistanceOffset(): number {
-    return this._distanceOffset;
-  }
-
-  public setDistanceOffset(value: number) {
-    this._distanceOffset = value;
   }
 }

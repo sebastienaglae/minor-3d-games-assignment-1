@@ -34,7 +34,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { FireEffect } from "./FireEffect";
-import { AwesomeFollowCamera } from './AwesomeFollowCamera';
+import { AwesomeFollowCamera } from "./AwesomeFollowCamera";
 
 // Keep it simple
 export class SpaceshipController {
@@ -95,8 +95,7 @@ export class SpaceshipController {
       this._scene
     );
 
-    this._camera.setDistanceOffset(10)
-    this._camera.setTarget(this._spaceship)
+    this._camera.setTarget(this._spaceship);
 
     this._scene.onBeforeRenderObservable.add(() => {
       this._update();
@@ -260,7 +259,24 @@ export class SpaceshipController {
   private _moveCamera() {
     // var maxFov = 2;
     // this._camera.fov = this.clamp(this._speed / 10 + 0.5, 0.8, maxFov);
+    // put the this.subTarget 10 units in front of the target
+    // this.subTarget.position = this.sTarget.position.add(
+    //   this.sTarget.forward.scale(3)
+    // );
+    //lerp that and set a max distance of 10
 
+    //compute the distance between the target and the subTarget
+    const distance = this._camera.getDistance();
+    //if the distance is greater than 10
+    if (distance > 10) {
+      // stay 3 units in front of the target
+      this._camera.setPos(3)
+    } else {
+      //lerp the subTarget
+      //this.subTarget.position = Vector3.Lerp(this.subTarget.position, this.sTarget.position, 0.1);
+      this._camera.setPosLerp(3)
+    }
+    this._camera.updateRotation();
   }
 
   private clamp(value: number, min: number, max: number) {
