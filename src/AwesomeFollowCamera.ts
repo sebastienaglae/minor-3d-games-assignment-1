@@ -10,14 +10,16 @@ export class AwesomeFollowCamera extends ArcRotateCamera {
     this.sphereTarget.position = Vector3.Lerp(
       this.sphereTarget.position,
       this.realTarget.position.add(this.realTarget.forward.scale(arg0)),
-      0.9
+      0.5
     );
   }
+
   setPos(arg0: number) {
     this.sphereTarget.position = this.realTarget.position.add(
       this.realTarget.forward.scale(arg0)
     );
   }
+
   getDistance() {
     return this.realTarget.position.subtract(this.sphereTarget.position).length();
   }

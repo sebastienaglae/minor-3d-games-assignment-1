@@ -29,14 +29,14 @@ export class FireEffect extends ParticleSystem {
     this.minLifeTime = 0.2;
     this.maxLifeTime = 0.4;
 
-    this.emitRate = 0;
+    this.emitRate = 600;
 
     this.blendMode = ParticleSystem.BLENDMODE_ONEONE;
 
     this.gravity = new Vector3(0, 0, 0);
 
-    this.direction1 = new Vector3(0, 4, 0);
-    this.direction2 = new Vector3(0, 4, 0);
+    this.direction1 = Vector3.Down();
+    this.direction2 = Vector3.Down();
 
     this.minAngularSpeed = 0;
     this.maxAngularSpeed = Math.PI;
@@ -44,9 +44,5 @@ export class FireEffect extends ParticleSystem {
     this.minEmitPower = 1;
     this.maxEmitPower = 3;
     this.updateSpeed = 0.007;
-  }
-
-  public changeEmitRate(rate: number) {
-    this.emitRate = rate;
   }
 }

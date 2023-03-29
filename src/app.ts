@@ -22,6 +22,8 @@ import { SpaceshipController } from "./SpaceshipController";
 import { FireEffect } from "./FireEffect";
 import { ToonMaterial } from "./material/ToonMaterial";
 import { AwesomeFollowCamera } from "./AwesomeFollowCamera";
+import * as GUI from "@babylonjs/gui";
+import { UI } from './UI';
 
 // create a class to hold the scene and camera export it
 export class App {
@@ -58,22 +60,22 @@ export class App {
       this._scene
     );
 
-    // var skybox = MeshBuilder.CreateBox(
-    //   "skyBox",
-    //   { size: 10000.0 },
-    //   this._scene
-    // );
-    // var skyboxMaterial = new StandardMaterial("skyBox", this._scene);
-    // skyboxMaterial.backFaceCulling = false;
-    // skyboxMaterial.reflectionTexture = new CubeTexture(
-    //   "obj/skybox/skybox",
-    //   this._scene
-    // );
-    // skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
-    // skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
-    // skyboxMaterial.specularColor = new Color3(0, 0, 0);
-    // skybox.infiniteDistance = true;
-    // skybox.material = skyboxMaterial;
+    var skybox = MeshBuilder.CreateBox(
+      "skyBox",
+      { size: 10000.0 },
+      this._scene
+    );
+    var skyboxMaterial = new StandardMaterial("skyBox", this._scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new CubeTexture(
+      "obj/skybox/skybox",
+      this._scene
+    );
+    skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new Color3(0, 0, 0);
+    skybox.infiniteDistance = true;
+    skybox.material = skyboxMaterial;
 
     SceneLoader.ImportMeshAsync("", "obj/", "spaceship.glb", this._scene).then(
       (result) => {
@@ -85,7 +87,7 @@ export class App {
           depth: 0.1,
         });
         fireEffect.parent = spaceship;
-        fireEffect.position = new Vector3(1, 0, 1.5);
+        fireEffect.position = new Vector3(1, 0, -1.5);
         fireEffect.rotation = new Vector3(90, 0, 0);
         // load the fire effect
         let b1 = new FireEffect(this._scene, fireEffect);
@@ -95,18 +97,18 @@ export class App {
           depth: 0.1,
         });
         fireEffect1.parent = spaceship;
-        fireEffect1.position = new Vector3(-1, 0, 1.5);
+        fireEffect1.position = new Vector3(-1, 0, -1.5);
         fireEffect1.rotation = new Vector3(90, 0, 0);
         // load the fire effect
         let b2 = new FireEffect(this._scene, fireEffect1);
         b1.start();
         b2.start();
 
-        new SpaceshipController(spaceship, this._scene, this._camera, [b1, b2]);
+        new SpaceshipController(spaceship, this._scene, this._camera);
       }
     );
 
-    // this.createPlanets();
+    this.createPlanets();
     this._engine.runRenderLoop(() => {
       this._scene.render();
     });
@@ -138,7 +140,7 @@ export class App {
         this._scene
       );
 
-      let radius = 10000;
+      let radius = 20000;
       sphere.position.x = Math.random() * radius - radius / 2;
       sphere.position.y = Math.random() * radius - radius / 2;
       sphere.position.z = Math.random() * radius - radius / 2;
