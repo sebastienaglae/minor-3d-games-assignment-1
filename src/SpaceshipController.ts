@@ -5,9 +5,9 @@ import {
   Scene,
   Vector3,
 } from "@babylonjs/core";
-import { FireEffect } from "./FireEffect";
+import { FireEffect } from "./effect/FireEffect";
 import { AwesomeFollowCamera } from "./AwesomeFollowCamera";
-import { UI } from './UI';
+import { UI } from "./ui/UI";
 
 export class SpaceshipController {
   private _spaceship: AbstractMesh;
@@ -36,6 +36,9 @@ export class SpaceshipController {
   private _lastLeftRight: string | "right" | "left" = "";
   private _lastLeftUpDown: string | "up" | "down" = "";
 
+  private _speedCooldown = 0;
+  private _speedRefresh = 0.1;
+
   constructor(
     spaceship: AbstractMesh,
     scene: Scene,
@@ -47,14 +50,14 @@ export class SpaceshipController {
     this._speed = 0;
     this._speedKm = 0;
     this._velocity = new Vector3(0, 0, 0);
-    this._maxSpeed = 20;
-    this._acceleration = 0.05;
-    this._deceleration = 0.01;
+    this._maxSpeed = 100;
+    this._acceleration = 0.5;
+    this._deceleration = 0; // 0.01
     this._rotationSpeedHori = 0;
     this._rotationSpeedVer = 0;
     this._maxRotationSpeed = 0.05;
-    this._rotationAcceleration = 0.005;
-    this._rotationDeceleration = 0.0025;
+    this._rotationAcceleration = 0.001;
+    this._rotationDeceleration = 0.0005; // 0.0025
     this._isMoving = false;
     this._isRotating = false;
     this._isGoingUp = false;
@@ -249,18 +252,21 @@ export class SpaceshipController {
 
     this._spaceship.moveWithCollisions(this._velocity);
     this._moveCamera();
+    //cooldown 1sec
     this._computeSpeedKm();
     UI.Instance.setSpeed(this._speedKm);
   }
 
   private _computeSpeedKm() {
+    this._speedCooldown -= this._scene.getEngine().getDeltaTime();
+    if (this._speedCooldown > 0) return;
     const distance = Vector3.Distance(
       this._lastPosition,
       this._spaceship.position
     );
-    const time = this._scene.getEngine().getDeltaTime() / 1000;
-    const speed = (distance / time) * 3.6;
+    const speed = (distance * 3600 * (1/this._speedRefresh)) / 1000;
     this._lastPosition = this._spaceship.position;
+    this._speedCooldown += this._speedRefresh;
     this._speedKm = speed;
   }
 

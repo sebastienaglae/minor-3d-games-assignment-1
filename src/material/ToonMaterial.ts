@@ -2,6 +2,7 @@ import { Color3 } from "@babylonjs/core";
 import {
   AddBlock,
   AnimatedInputBlockTypes,
+  BaseTexture,
   DotBlock,
   FragmentOutputBlock,
   ImageSourceBlock,
@@ -22,22 +23,9 @@ import {
   VertexOutputBlock,
   ViewDirectionBlock,
 } from "@babylonjs/core/Materials";
-import { App } from "../app";
 
 export class ToonMaterial {
-  public static createMaterial(arg0: any, arg1?: any, arg2?: any, scene?: any) {
-    const isTexture = typeof arg0 === "string";
-    let textureLink = "";
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    if (isTexture) {
-      textureLink = arg0 as string;
-    } else {
-      r = arg0 as number;
-      g = arg1 as number;
-      b = arg2 as number;
-    }
+  public static createMaterial(inputTexture: any, scene?: any) {
     let nodeMaterial = new NodeMaterial("Toon");
     // InputBlock
     var position = new InputBlock("position");
@@ -376,55 +364,46 @@ export class ToonMaterial {
     // InputBlock (COLOR)
     var SurfaceColor = new InputBlock("Surface Color");
 
-    if (isTexture) {
-      // TextureBlock (TEXTURE)
-      texture.visibleInInspector = false;
-      texture.visibleOnFrame = false;
-      texture.target = 3;
-      texture.convertToGammaSpace = false;
-      texture.convertToLinearSpace = false;
-      texture.disableLevelMultiplication = false;
-      texture.texture = new Texture(textureLink, scene);
-      texture.texture.wrapU = 1;
-      texture.texture.wrapV = 1;
-      texture.texture.uAng = 0;
-      texture.texture.vAng = 0;
-      texture.texture.wAng = 0;
-      texture.texture.uOffset = 0;
-      texture.texture.vOffset = 0;
-      texture.texture.uScale = 1;
-      texture.texture.vScale = 1;
-      texture.texture.coordinatesMode = 7;
+    texture.visibleInInspector = false;
+    texture.visibleOnFrame = false;
+    texture.target = 3;
+    texture.convertToGammaSpace = false;
+    texture.convertToLinearSpace = false;
+    texture.disableLevelMultiplication = false;
+    console.log(inputTexture);
+    texture.texture = inputTexture;
+    texture.texture.wrapU = 1;
+    texture.texture.wrapV = 1;
+    texture.texture.uAng = 0;
+    texture.texture.vAng = 0;
+    texture.texture.wAng = 0;
+    texture.texture.uOffset = 0;
+    texture.texture.vOffset = 0;
+    texture.texture.uScale = 1;
+    texture.texture.vScale = 1;
+    texture.texture.coordinatesMode = 7;
 
-      // InputBlock (TEXTURE)
-      uv.visibleInInspector = false;
-      uv.visibleOnFrame = false;
-      uv.target = 1;
-      uv.setAsAttribute("uv");
+    // InputBlock (TEXTURE)
+    uv.visibleInInspector = false;
+    uv.visibleOnFrame = false;
+    uv.target = 1;
+    uv.setAsAttribute("uv");
 
-      // ImageSourceBlock (TEXTURE)
-      SurfaceTexture.visibleInInspector = false;
-      SurfaceTexture.visibleOnFrame = false;
-      SurfaceTexture.target = 3;
-      SurfaceTexture.texture = new Texture(textureLink, scene);
-      SurfaceTexture.texture.wrapU = 1;
-      SurfaceTexture.texture.wrapV = 1;
-      SurfaceTexture.texture.uAng = 0;
-      SurfaceTexture.texture.vAng = 0;
-      SurfaceTexture.texture.wAng = 0;
-      SurfaceTexture.texture.uOffset = 0;
-      SurfaceTexture.texture.vOffset = 0;
-      SurfaceTexture.texture.uScale = 1;
-      SurfaceTexture.texture.vScale = 1;
-      SurfaceTexture.texture.coordinatesMode = 7;
-    } else {
-      // InputBlock (COLOR)
-      SurfaceColor.visibleInInspector = false;
-      SurfaceColor.visibleOnFrame = false;
-      SurfaceColor.target = 1;
-      SurfaceColor.value = new Color3(r, g, b);
-      SurfaceColor.isConstant = false;
-    }
+    // ImageSourceBlock (TEXTURE)
+    SurfaceTexture.visibleInInspector = false;
+    SurfaceTexture.visibleOnFrame = false;
+    SurfaceTexture.target = 3;
+    SurfaceTexture.texture = inputTexture;
+    SurfaceTexture.texture.wrapU = 1;
+    SurfaceTexture.texture.wrapV = 1;
+    SurfaceTexture.texture.uAng = 0;
+    SurfaceTexture.texture.vAng = 0;
+    SurfaceTexture.texture.wAng = 0;
+    SurfaceTexture.texture.uOffset = 0;
+    SurfaceTexture.texture.vOffset = 0;
+    SurfaceTexture.texture.uScale = 1;
+    SurfaceTexture.texture.vScale = 1;
+    SurfaceTexture.texture.coordinatesMode = 7;
 
     // FragmentOutputBlock
     var fragmentOutput = new FragmentOutputBlock("fragmentOutput");
@@ -517,15 +496,9 @@ export class ToonMaterial {
     Scale.output.connectTo(AddRimSpecDiffuseAmbient.right);
     AddRimSpecDiffuseAmbient.output.connectTo(MultiplyLightingbyColor.left);
 
-    if (isTexture) {
-      // TEXTURE
-      uv.output.connectTo(texture.uv);
-      SurfaceTexture.source.connectTo(texture.source);
-      texture.rgb.connectTo(MultiplyLightingbyColor.right);
-    } else {
-      // COLOR
-      SurfaceColor.output.connectTo(MultiplyLightingbyColor.right);
-    }
+    uv.output.connectTo(texture.uv);
+    SurfaceTexture.source.connectTo(texture.source);
+    texture.rgb.connectTo(MultiplyLightingbyColor.right);
 
     MultiplyLightingbyColor.output.connectTo(fragmentOutput.rgb);
 
