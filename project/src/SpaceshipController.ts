@@ -1,7 +1,9 @@
 import {
   AbstractMesh,
+  Axis,
   PhysicsImpostor,
   PointerEventTypes,
+  Quaternion,
   Scene,
   Vector3,
 } from "@babylonjs/core";
@@ -24,8 +26,6 @@ export class SpaceshipController {
   private _maxRotationSpeed: number;
   private _rotationAcceleration: number;
   private _rotationDeceleration: number;
-  private _isMoving: boolean;
-  private _isRotating: boolean;
   private _isGoingUp: boolean;
   private _isGoingDown: boolean;
   private _isGoingLeft: boolean;
@@ -33,8 +33,6 @@ export class SpaceshipController {
   private _isGoingForward: boolean;
   private _isGoingBackward: boolean;
   private _lastPosition = Vector3.Zero();
-  private _lastLeftRight: string | "right" | "left" = "";
-  private _lastLeftUpDown: string | "up" | "down" = "";
 
   private _speedCooldown = 0;
   private _speedRefresh = 0.1;
@@ -60,8 +58,6 @@ export class SpaceshipController {
     this._maxRotationSpeed = 0.05;
     this._rotationAcceleration = 0.001;
     this._rotationDeceleration = 0.0005; // 0.0025
-    this._isMoving = false;
-    this._isRotating = false;
     this._isGoingUp = false;
     this._isGoingDown = false;
     this._isGoingLeft = false;
@@ -143,26 +139,87 @@ export class SpaceshipController {
 
   private _update() {
     let isPressed = false;
+    // Forward and backward
     if (this._isGoingBackward) {
-      this._isMoving = true;
       this._speed += this._acceleration;
-      // cannot go below 0
       if (this._speed >= 0) {
         this._speed = 0;
-      }
-      else if (this._speed > this._maxSpeed) {
+      } else if (this._speed > this._maxSpeed) {
         this._speed = this._maxSpeed;
       }
-      
     }
     if (this._isGoingForward) {
-      this._isMoving = true;
       this._speed -= this._acceleration;
       if (this._speed < -this._maxSpeed) {
         this._speed = -this._maxSpeed;
       }
     }
-    if (!this._isGoingForward && !this._isGoingBackward) {
+    // Left and right
+    if (this._isGoingRight) {
+      isPressed = true;
+      this._rotationSpeedHori += this._rotationAcceleration;
+      if (this._rotationSpeedHori > this._maxRotationSpeed) {
+        this._rotationSpeedHori = this._maxRotationSpeed;
+      }
+    }
+    if (this._isGoingLeft) {
+      isPressed = true;
+      this._rotationSpeedHori -= this._rotationAcceleration;
+      if (this._rotationSpeedHori < -this._maxRotationSpeed) {
+        this._rotationSpeedHori = -this._maxRotationSpeed;
+      }
+    }
+    // Up and down
+    if (this._isGoingUp) {
+      isPressed = true;
+      this._rotationSpeedVer += this._rotationAcceleration;
+      if (this._rotationSpeedVer > this._maxRotationSpeed) {
+        this._rotationSpeedVer = this._maxRotationSpeed;
+      }
+    }
+    if (this._isGoingDown) {
+      isPressed = true;
+      this._rotationSpeedVer -= this._rotationAcceleration;
+      if (this._rotationSpeedVer < -this._maxRotationSpeed) {
+        this._rotationSpeedVer = -this._maxRotationSpeed;
+      }
+    }
+
+    // if (!this._isGoingForward) {
+    //   if (this._speed > 0) {
+    //     this._speed -= this._deceleration;
+    //   }
+    // }
+    this._velocity = this._spaceship.forward.scale(-this._speed);
+
+    if (!isPressed) {
+      // Horizontal deceleration (left and right)
+      if (this._rotationSpeedHori > 0) {
+        this._rotationSpeedHori -= this._rotationDeceleration;
+        if (this._rotationSpeedHori < 0) {
+          this._rotationSpeedHori = 0;
+        }
+      }
+      if (this._rotationSpeedHori < 0) {
+        this._rotationSpeedHori += this._rotationDeceleration;
+        if (this._rotationSpeedHori > 0) {
+          this._rotationSpeedHori = 0;
+        }
+      }
+      // Vertical deceleration (up and down)
+      if (this._rotationSpeedVer > 0) {
+        this._rotationSpeedVer -= this._rotationDeceleration;
+        if (this._rotationSpeedVer < 0) {
+          this._rotationSpeedVer = 0;
+        }
+      }
+      if (this._rotationSpeedVer < 0) {
+        this._rotationSpeedVer += this._rotationDeceleration;
+        if (this._rotationSpeedVer > 0) {
+          this._rotationSpeedVer = 0;
+        }
+      }
+      // Speed deceleration
       if (this._speed > 0) {
         this._speed -= this._deceleration;
         if (this._speed < 0) {
@@ -175,88 +232,11 @@ export class SpaceshipController {
         }
       }
     }
-
-    if (this._isGoingRight) {
-      isPressed = true;
-      this._lastLeftRight = "right";
-      this._isRotating = true;
-      this._rotationSpeedHori += this._rotationAcceleration;
-      if (this._rotationSpeedHori > this._maxRotationSpeed) {
-        this._rotationSpeedHori = this._maxRotationSpeed;
-      }
-      this._spaceship.rotate(Vector3.Up(), this._rotationSpeedHori);
-    }
-    if (this._isGoingLeft) {
-      isPressed = true;
-      this._lastLeftRight = "left";
-      this._isRotating = true;
-      this._rotationSpeedHori += this._rotationAcceleration;
-      if (this._rotationSpeedHori > this._maxRotationSpeed) {
-        this._rotationSpeedHori = this._maxRotationSpeed;
-      }
-      this._spaceship.rotate(Vector3.Up(), -this._rotationSpeedHori);
-    }
-
-    if (this._isGoingUp) {
-      isPressed = true;
-      this._lastLeftUpDown = "up";
-      this._isRotating = true;
-      this._rotationSpeedVer += this._rotationAcceleration;
-      if (this._rotationSpeedVer > this._maxRotationSpeed) {
-        this._rotationSpeedVer = this._maxRotationSpeed;
-      }
-      this._spaceship.rotate(Vector3.Right(), this._rotationSpeedVer);
-    }
-    if (this._isGoingDown) {
-      isPressed = true;
-      this._lastLeftUpDown = "down";
-      this._isRotating = true;
-      this._rotationSpeedVer += this._rotationAcceleration;
-      if (this._rotationSpeedVer > this._maxRotationSpeed) {
-        this._rotationSpeedVer = this._maxRotationSpeed;
-      }
-      this._spaceship.rotate(Vector3.Right(), -this._rotationSpeedVer);
-    }
-
-    if (!this._isGoingForward) {
-      if (this._speed > 0) {
-        this._speed -= this._deceleration;
-      }
-    }
-    this._velocity = this._spaceship.forward.scale(-this._speed);
-
-    if (!isPressed) {
-      this._isMoving = false;
-      this._isRotating = false;
-      if (this._rotationSpeedHori > 0) {
-        this._rotationSpeedHori -= this._rotationDeceleration;
-        if (this._rotationSpeedHori < 0) {
-          this._rotationSpeedHori = 0;
-        }
-        if (this._lastLeftRight === "right") {
-          this._spaceship.rotate(Vector3.Up(), this._rotationSpeedHori);
-        }
-        if (this._lastLeftRight === "left") {
-          this._spaceship.rotate(Vector3.Up(), -this._rotationSpeedHori);
-        }
-      }
-      if (this._rotationSpeedVer > 0) {
-        this._rotationSpeedVer -= this._rotationDeceleration;
-        if (this._rotationSpeedVer < 0) {
-          this._rotationSpeedVer = 0;
-        }
-        if (this._lastLeftUpDown === "up") {
-          this._spaceship.rotate(Vector3.Right(), this._rotationSpeedVer);
-        }
-        if (this._lastLeftUpDown === "down") {
-          this._spaceship.rotate(Vector3.Right(), -this._rotationSpeedVer);
-        }
-      }
-    }
+    this.turnHorizontal(this._rotationSpeedHori);
+    this.turnVertical(this._rotationSpeedVer);
 
     this._spaceship.moveWithCollisions(this._velocity);
     this._moveCamera();
-    //cooldown 1sec
     this._computeSpeedKm();
     UI.Instance.setSpeed(this._speedKm);
   }
@@ -285,5 +265,15 @@ export class SpaceshipController {
 
   private clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
+  }
+
+  private turnHorizontal(angle: number) {
+    const quaternion = Quaternion.RotationAxis(Axis.Y, angle);
+    this._spaceship.rotationQuaternion.multiplyInPlace(quaternion);
+  }
+
+  private turnVertical(angle: number) {
+    const quaternion = Quaternion.RotationAxis(Axis.X, angle);
+    this._spaceship.rotationQuaternion.multiplyInPlace(quaternion);
   }
 }

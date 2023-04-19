@@ -6,34 +6,6 @@ import {
 } from "@babylonjs/core";
 
 export class AwesomeFollowCamera extends ArcRotateCamera {
-  setPosLerp(arg0: number) {
-    this.sphereTarget.position = Vector3.Lerp(
-      this.sphereTarget.position,
-      this.realTarget.position.add(this.realTarget.forward.scale(arg0)),
-      0.5
-    );
-  }
-
-  setPos(arg0: number) {
-    this.sphereTarget.position = this.realTarget.position.add(
-      this.realTarget.forward.scale(arg0)
-    );
-  }
-
-  getDistance() {
-    return this.realTarget.position.subtract(this.sphereTarget.position).length();
-  }
-
-  updateRotation() {
-    // rotate the sphere to look at the target
-    // this.sphereTarget.lookAt(this.realTarget.position, 0, Math.PI, 0);
-    // invert rotation of the sphere
-    this.sphereTarget.rotation = this.realTarget.rotationQuaternion.toEulerAngles();
-    
-
-    
-  }
-
   private realTarget: any;
   private sphereTarget: any;
 
@@ -60,6 +32,31 @@ export class AwesomeFollowCamera extends ArcRotateCamera {
     this.realTarget = null;
   }
 
+  setPosLerp(arg0: number) {
+    this.sphereTarget.position = Vector3.Lerp(
+      this.sphereTarget.position,
+      this.realTarget.position.add(this.realTarget.forward.scale(arg0)),
+      0.5
+    );
+  }
+
+  setPos(arg0: number) {
+    this.sphereTarget.position = this.realTarget.position.add(
+      this.realTarget.forward.scale(arg0)
+    );
+  }
+
+  getDistance() {
+    return this.realTarget.position
+      .subtract(this.sphereTarget.position)
+      .length();
+  }
+
+  updateRotation() {
+    this.sphereTarget.rotation =
+      this.realTarget.rotationQuaternion.toEulerAngles();
+  }
+
   public override setTarget(target: any): void {
     this.realTarget = target;
     this.sphereTarget = MeshBuilder.CreateSphere(
@@ -67,8 +64,8 @@ export class AwesomeFollowCamera extends ArcRotateCamera {
       { diameter: 0.1 },
       this.getScene()
     );
+    this.sphereTarget.visibility = 0;
 
-    // camera child of the sphereTarget
     this.parent = this.sphereTarget;
   }
 

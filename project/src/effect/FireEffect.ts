@@ -15,8 +15,8 @@ export class FireEffect extends ParticleSystem {
 
     // Where the particles come from
     this.emitter = emitter; // the starting object, the emitter
-    this.minEmitBox = new Vector3(-0.25, 1, -0.25); // Starting all from
-    this.maxEmitBox = new Vector3(0.25, 1, 0.25); // To...
+    this.minEmitBox = new Vector3(-0.15, -0.15, -0.15); // Starting all from
+    this.maxEmitBox = new Vector3(0.15, 0.15, 0.15); // To...
 
     // Colors of all particles
     this.color1 = new Color4(1, 0.5, 0, 1.0);

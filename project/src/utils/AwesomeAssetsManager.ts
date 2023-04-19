@@ -26,6 +26,8 @@ export class AwesomeAssetsManager extends AssetsManager {
     task.onSuccess = (task) => {
       this._meshes[name] = task.loadedMeshes[0];
       console.log("mesh loaded (", name, "): ", task.loadedMeshes[0]);
+      // put in local storage cache
+      localStorage.setItem(name, JSON.stringify(task.loadedMeshes[0]));
     };
   }
 

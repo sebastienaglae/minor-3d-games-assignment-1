@@ -69,32 +69,42 @@ export class App {
 
     this.createSkybox();
 
-    SceneLoader.ImportMeshAsync("", "obj/", "spaceship.glb", this._scene).then(
+    SceneLoader.ImportMeshAsync("", "obj/", "starship.glb", this._scene).then(
       (result) => {
         const spaceship = result.meshes[0];
-        // create an empty mesh to hold a fire effect at 1 -1.5
         const fireEffect = MeshBuilder.CreateBox("fireEffect", {
           width: 0.1,
           height: 0.1,
           depth: 0.1,
         });
+        fireEffect.visibility = 0;
         fireEffect.parent = spaceship;
-        fireEffect.position = new Vector3(1, 0, -1.5);
+        fireEffect.position = new Vector3(0.6, 0.25, -4.2);
         fireEffect.rotation = new Vector3(90, 0, 0);
-        // load the fire effect
         let b1 = new FireEffect(this._scene, fireEffect);
         const fireEffect1 = MeshBuilder.CreateBox("fireEffect1", {
           width: 0.1,
           height: 0.1,
           depth: 0.1,
         });
+        fireEffect1.visibility = 0;
         fireEffect1.parent = spaceship;
-        fireEffect1.position = new Vector3(-1, 0, -1.5);
+        fireEffect1.position = new Vector3(-0.56, 0.33, -4.2);
         fireEffect1.rotation = new Vector3(90, 0, 0);
-        // load the fire effect
         let b2 = new FireEffect(this._scene, fireEffect1);
+        const fireEffect2 = MeshBuilder.CreateBox("fireEffect2", {
+          width: 0.1,
+          height: 0.1,
+          depth: 0.1,
+        });
+        fireEffect2.visibility = 0;
+        fireEffect2.parent = spaceship;
+        fireEffect2.position = new Vector3(0, -0.55, -4.2);
+        fireEffect2.rotation = new Vector3(90, 0, 0);
+        let b3 = new FireEffect(this._scene, fireEffect2);
         b1.start();
         b2.start();
+        b3.start();
 
         new SpaceshipController(spaceship, this._scene, this._camera);
       }
@@ -140,6 +150,9 @@ export class App {
     );
     //set render camera distance to 20000
     this._camera.maxZ = 40000;
+    this._camera.position = new Vector3(0, 2, 10);
+    //attach input to camera
+    //this._camera.attachControl(this._canvas, true);
   }
 
   private createWorld() {
