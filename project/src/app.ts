@@ -19,9 +19,10 @@ import "@babylonjs/loaders/glTF";
 import { Spaceship } from "./Spaceship";
 import { FireEffect } from "./effect/FireEffect";
 import { ToonMaterial } from "./material/ToonMaterial";
-import { AwesomeFollowCamera } from "./AwesomeFollowCamera";
+import { AwesomeFollowCamera } from "./scrap/AwesomeFollowCamera";
 import { AwesomeAssetsManager } from "./utils/AwesomeAssetsManager";
 import { CloudPlanet } from "./CloudPlanet";
+import { Planet } from './Planet';
 
 export class App {
   private _canvas: HTMLCanvasElement;
@@ -133,27 +134,33 @@ export class App {
   }
 
   private createPlanets() {
-    let planetMaterials = [];
-    for (let i = 1; i <= 17; i++) {
-      let planetMaterial = ToonMaterial.createMaterial(
-        AwesomeAssetsManager.getInstance().getTexture(`planet${i}`),
-        this._scene
-      );
-      planetMaterials.push(planetMaterial);
-    }
-    for (let i = 0; i < 100; i++) {
-      let diameter = Math.random() * 500;
-      let radius = 10000;
-      let randomPosition = Vector3.Random(-radius, radius);
-      const planet = new CloudPlanet(
-        diameter,
-        this._scene,
-        randomPosition,
-        this._camera
-      );
+    let pla = new Planet("Mercury", 1000, 0.1, 0.1, 130000, "");
+    pla.createMeshes(this._scene);
+    this._scene.registerBeforeRender(() => {
+      pla.update(this._engine.getDeltaTime());
+    });
+      
+    // let planetMaterials = [];
+    // for (let i = 1; i <= 17; i++) {
+    //   let planetMaterial = ToonMaterial.createMaterial(
+    //     AwesomeAssetsManager.getInstance().getTexture(`planet${i}`),
+    //     this._scene
+    //   );
+    //   planetMaterials.push(planetMaterial);
+    // }
+    // for (let i = 0; i < 100; i++) {
+    //   let diameter = Math.random() * 500;
+    //   let radius = 10000;
+    //   let randomPosition = Vector3.Random(-radius, radius);
+    //   const planet = new CloudPlanet(
+    //     diameter,
+    //     this._scene,
+    //     randomPosition,
+    //     this._camera
+    //   );
 
-      planet.setMaterial(planetMaterials[Math.floor(Math.random() * 17)]);
-    }
+    //   planet.setMaterial(planetMaterials[Math.floor(Math.random() * 17)]);
+    // }
   }
 }
 
