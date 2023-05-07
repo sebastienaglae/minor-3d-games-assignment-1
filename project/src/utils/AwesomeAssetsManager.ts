@@ -43,8 +43,8 @@ export class AwesomeAssetsManager extends AssetsManager {
     };
   }
 
-  public getTexture(name: string) {
-    return this._textures[name];
+  public static getTexture(name: string) {
+    return AwesomeAssetsManager.getInstance()._textures[name];
   }
 
   public addAndStoreCubeTexture(name: string, url: string) {

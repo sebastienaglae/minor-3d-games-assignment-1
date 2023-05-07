@@ -25,7 +25,7 @@ import {
 } from "@babylonjs/core/Materials";
 
 export class ToonMaterial {
-  public static createMaterial(inputTexture: any, scene?: any) {
+  public static createMaterial(inputTexture: any) {
     let nodeMaterial = new NodeMaterial("Toon");
     // InputBlock
     var position = new InputBlock("position");

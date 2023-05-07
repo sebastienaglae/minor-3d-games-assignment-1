@@ -9,19 +9,21 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { AwesomeAssetsManager } from "../utils/AwesomeAssetsManager";
+import { ColorTheme } from '../colors/ColorTheme';
 
 export class TrailsEffect extends ParticleSystem {
   constructor(
     name: string,
     capacity: number,
     scene: any,
-    spaceShip: AbstractMesh
+    spaceShip: AbstractMesh,
+    color: ColorTheme
   ) {
     super(name, capacity, scene);
     var box = MeshBuilder.CreateBox("box", { size: 0.01 }, scene);
 
     this.particleTexture =
-      AwesomeAssetsManager.getInstance().getTexture("trails");
+      AwesomeAssetsManager.getTexture("trails");
 
     box.parent = spaceShip;
     this.emitter = box;
@@ -29,9 +31,9 @@ export class TrailsEffect extends ParticleSystem {
 
     this.minEmitBox = new Vector3(0, 0, 0);
     this.maxEmitBox = new Vector3(0, 0, 0);
-    this.color1 = new Color4(1, 1, 0.7, 1.0);
-    this.color2 = new Color4(1, 1, 0.2, 1.0);
-    this.colorDead = new Color4(0.2, 0.2, 0, 0.0);
+    this.color1 = color.color1;
+    this.color2 = color.color2;
+    this.colorDead = color.color3;
     this.minSize = 0.1;
     this.maxSize = 0.5;
     this.minLifeTime = 0.3;
@@ -44,5 +46,5 @@ export class TrailsEffect extends ParticleSystem {
     this.minEmitPower = 0;
     this.maxEmitPower = 0;
     this.updateSpeed = 0.005;
-    }
+  }
 }

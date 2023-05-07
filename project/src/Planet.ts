@@ -1,4 +1,5 @@
-import { Mesh, MeshBuilder, Scene, StandardMaterial, Texture } from '@babylonjs/core';
+import { Mesh, MeshBuilder, Scene, Texture } from "@babylonjs/core";
+import { ToonMaterial } from "./material/ToonMaterial";
 
 export class Planet {
   private readonly _name: string;
@@ -6,7 +7,7 @@ export class Planet {
   private readonly _orbitSpeed: number;
   private readonly _rotationSpeed: number;
   private readonly _diameter: number;
-  private readonly _texturePath: string;
+  private readonly _texture: Texture;
   private _orbitMesh: Mesh | undefined;
   private _planetMesh: Mesh | undefined;
 
@@ -16,14 +17,14 @@ export class Planet {
     orbitSpeed: number,
     rotationSpeed: number,
     diameter: number,
-    texturePath: string
+    texture: Texture
   ) {
     this._name = name;
     this._orbitRadius = orbitRadius;
     this._orbitSpeed = orbitSpeed;
     this._rotationSpeed = rotationSpeed;
     this._diameter = diameter;
-    this._texturePath = texturePath;
+    this._texture = texture;
   }
 
   public createMeshes(scene: Scene): void {
@@ -35,8 +36,8 @@ export class Planet {
       },
       scene
     );
-    orbit.rotation.x = Math.PI / 2;
     this._orbitMesh = orbit;
+    this._orbitMesh.visibility = 0.1;
 
     const planet = MeshBuilder.CreateSphere(
       `${this._name}-planet`,
@@ -45,14 +46,7 @@ export class Planet {
       },
       scene
     );
-    planet.material = new StandardMaterial(
-      `${this._name}-material`,
-      scene
-    );
-    // planet.material.diffuseTexture = new Texture(
-    //   this._texturePath,
-    //   scene
-    // );
+    planet.material = ToonMaterial.createMaterial(this._texture);
     this._planetMesh = planet;
   }
 
@@ -64,5 +58,26 @@ export class Planet {
       this._planetMesh.position.z =
         this._orbitRadius * Math.sin((Date.now() / 1000) * this._orbitSpeed);
     }
+  }
+
+  getMesh() {
+    return this._planetMesh;
+  }
+
+  getRadius() {
+    return this._diameter / 2;
+  }
+
+  dispose() {
+    if (this._orbitMesh) {
+      this._orbitMesh.dispose();
+    }
+    if (this._planetMesh) {
+      this._planetMesh.dispose();
+    }
+  }
+
+  getName() {
+    return this._name;
   }
 }

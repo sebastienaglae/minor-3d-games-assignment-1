@@ -1,5 +1,5 @@
 import { Camera, FreeCamera, Material, Mesh, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
-import { CloudEffect } from "./effect/CloudEffect";
+import { CloudEffect } from "../effect/CloudEffect";
 
 export class CloudPlanet {
   private _sphere: Mesh;
@@ -36,12 +36,12 @@ export class CloudPlanet {
   }
 
   attachCloudEffect() {
-    this._cloudEffect = new CloudEffect(
-      this._scene,
-      this._sphere,
-      this._diameter,
-      this._camera
-    );
+    // this._cloudEffect = new CloudEffect(
+    //   this._scene,
+    //   this._sphere,
+    //   this._diameter,
+    //   this._camera
+    // );
     this._cloudEffect.start();
   }
 

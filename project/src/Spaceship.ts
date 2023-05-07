@@ -16,6 +16,10 @@ import {
 import { Dashboard } from "./Dashboard";
 import { TrailsManager } from "./effect/TrailsManager";
 import { Utils } from "./utils/Utils";
+import { CloudEffect } from "./effect/CloudEffect";
+import { PlanetManager } from "./PlanetManager";
+import { Planet } from "./Planet";
+import { ColorFactory } from './colors/ColorFactory';
 
 export class Spaceship {
   private _parentMesh: AbstractMesh;
@@ -39,6 +43,8 @@ export class Spaceship {
   private _isGoingRight: boolean;
   private _isGoingForward: boolean;
   private _isGoingBackward: boolean;
+  private _lockMovement: boolean;
+  private _lockSpeed: number;
 
   private _speedCooldown = 0;
   private _speedRefresh = 0.1;
@@ -47,15 +53,22 @@ export class Spaceship {
 
   private _rootUrl: string;
   private _sceneFilename: string;
-  private _scaleFactor: number = 1
-    ;
+  private _scaleFactor: number = 0.1;
+  private _scaleSpeed: number = 100;
 
   private _r: Vector4;
   private _t: number;
   private _projectionMatrix: Matrix;
 
-  private _trailManager: TrailsManager;
+  private _trailsEntry: TrailsManager;
+  private _trailsSpeed: TrailsManager;
+  private _cloudEffect: CloudEffect;
   private _dashboard: Dashboard;
+  private _planetManager: PlanetManager;
+  private _planetData: {
+    planet: Planet;
+    distance: number;
+  };
 
   constructor(
     rootUrl: string,
@@ -70,9 +83,9 @@ export class Spaceship {
     this._speed = 0;
     this._speedKm = 0;
     this._velocity = new Vector3(0, 0, 0);
-    this._maxSpeed = 75;
-    this._acceleration = 0.5;
-    this._deceleration = 0.001; // 0.01
+    this._maxSpeed = 5 * this._scaleFactor;
+    this._acceleration = (5 * this._scaleFactor) / this._scaleSpeed;
+    this._deceleration = (0.001 * this._scaleFactor) / this._scaleSpeed;
     this._rotationSpeedHori = 0;
     this._rotationSpeedVer = 0;
     this._maxRotationSpeed = 0.05;
@@ -86,7 +99,8 @@ export class Spaceship {
     this._isGoingBackward = false;
   }
 
-  public spawn() {
+  public spawn(planets: PlanetManager) {
+    this._planetManager = planets;
     SceneLoader.ImportMeshAsync(
       "",
       this._rootUrl,
@@ -113,14 +127,31 @@ export class Spaceship {
     this._t = 0;
 
     this._dashboard = new Dashboard(this._scene, this._spaceship);
-    this._trailManager = new TrailsManager(
+    this._trailsEntry = new TrailsManager(
       50,
       this._scene,
       this._spaceship,
       0.1,
-      6
+      6,
+      true,
+      ColorFactory.yellow()
     );
-    this._trailManager.start();
+    this._trailsEntry.start();
+    this._trailsEntry.changeEmitRate(0);
+
+    this._trailsSpeed = new TrailsManager(
+      10,
+      this._scene,
+      this._spaceship,
+      0.5,
+      20,
+      true,
+      ColorFactory.purple()
+    );
+    this._trailsSpeed.start();
+
+    this._cloudEffect = new CloudEffect(this._scene, this._spaceship);
+    this._cloudEffect.start();
   }
 
   private _setupSpaceship() {
@@ -138,7 +169,7 @@ export class Spaceship {
     this._parentMesh.physicsImpostor = new PhysicsImpostor(
       this._spaceship,
       PhysicsImpostor.BoxImpostor,
-      { mass: 0, restitution: 0.9 },
+      { mass: 0, restitution: 0.9, friction: 0 },
       this._scene
     );
 
@@ -151,11 +182,7 @@ export class Spaceship {
 
   private _setupCamera() {
     this._camera.parent = this._spaceship;
-    this._camera.position = new Vector3(
-      0 * this._scaleFactor,
-      0.2 * this._scaleFactor,
-      -0.75 * this._scaleFactor
-    );
+    this._camera.position = new Vector3(0, 0.2, -1);
     this._camera.fov = 1;
   }
 
@@ -222,6 +249,8 @@ export class Spaceship {
   }
 
   private _update() {
+    if (this._lockMovement) return;
+
     let isPressed = false;
     // Forward and backward
     if (this._isGoingBackward) {
@@ -323,17 +352,41 @@ export class Spaceship {
     this._computeSpeedKm();
     this._shakeCamera();
 
-    this._trailManager.changeEmitRate(
+    this._trailsSpeed.changeEmitRate(
       Utils.clamp(0, this._maxSpeed, -this._speed)
     );
+
+    this._planetData = this._planetManager.getDistanceClosestPlanet(
+      this._parentMesh
+    );
+    this._cloudEffect.changeEmitRate(
+      1 - Utils.clamp(0, 150, this._planetData.distance)
+    );
+    this._trailsEntry.changeEmitRate(
+      1 - Utils.clamp(0, 150, this._planetData.distance)
+    );
+    if (this._planetData.distance <= 10) {
+      this._fakeStop();
+    }
 
     this._updateDashboard();
   }
 
+  private _fakeStop() {
+    this._planetManager.disposeAll();
+    this._lockSpeed = this._speed;
+    this._lockMovement = true;
+    console.log("fake stop on planet " + this._planetData.planet.getName());
+  }
+
   private _computeSpeedKm() {
+    if (this._lockMovement) return;
     this._speedCooldown -= this._scene.getEngine().getDeltaTime();
     if (this._speedCooldown <= 0) {
-      this._speedKm = -this._speed * 3.6 / this._speedRefresh;
+      this._speedKm =
+        ((((-this._speed * 3.6) / this._speedRefresh) * 1) /
+          this._scaleFactor) *
+        this._scaleSpeed;
       this._speedCooldown = this._speedRefresh;
     }
   }
@@ -349,10 +402,13 @@ export class Spaceship {
   }
 
   private _shakeCamera() {
+    let speed = this._speed;
+    if (this._lockMovement) speed = this._lockSpeed;
+
     this._r.x +=
-      Math.cos(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, this._speed);
+      Math.cos(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, speed);
     this._r.y +=
-      Math.sin(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, this._speed);
+      Math.sin(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, speed);
     this._projectionMatrix.setRowFromFloats(
       3,
       this._r.x,
@@ -364,9 +420,9 @@ export class Spaceship {
   }
 
   private _updateDashboard() {
-    this._dashboard.setAllEngText(
-      Utils.clamp(0, this._maxSpeed, -this._speed) * 100
-    );
+    let speed = this._speed;
+    if (this._lockMovement) speed = this._lockSpeed;
+    this._dashboard.setAllEngText(Utils.clamp(0, this._maxSpeed, -speed) * 100);
     this._dashboard.setSpeedText(this._speedKm);
     this._dashboard.updateTime();
     this._dashboard.updateFPSText();
