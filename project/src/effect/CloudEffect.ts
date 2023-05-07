@@ -59,7 +59,7 @@ export class CloudEffect extends GPUParticleSystem {
     this.particleEmitterType = new SphereParticleEmitter(1.2 * diameter, 0.5);
     scene.registerBeforeRender(() => {
       this.emitter = emitter.position;
-      this.changeFactor();
+      // this.changeFactor();
     });
   }
 

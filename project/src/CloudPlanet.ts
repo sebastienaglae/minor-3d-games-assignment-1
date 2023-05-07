@@ -20,12 +20,9 @@ export class CloudPlanet {
     this._position = position;
     this._camera = camera;
     this.createSphere();
-    this.attachCloudEffect();
+    // this.attachCloudEffect();
     this._scene.registerBeforeRender(() => {
-      this._sphere.position.x =
-        this._position.x +
-        Math.sin(this._scene.getEngine().getDeltaTime() / 100);
-      this._cloudEffect.emitter = this._sphere.position;
+      // this._cloudEffect.emitter = this._sphere.position;
     });
   }
 

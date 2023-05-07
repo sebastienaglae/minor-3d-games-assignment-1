@@ -370,7 +370,6 @@ export class ToonMaterial {
     texture.convertToGammaSpace = false;
     texture.convertToLinearSpace = false;
     texture.disableLevelMultiplication = false;
-    console.log(inputTexture);
     texture.texture = inputTexture;
     texture.texture.wrapU = 1;
     texture.texture.wrapV = 1;
