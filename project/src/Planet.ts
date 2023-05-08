@@ -1,4 +1,4 @@
-import { Mesh, MeshBuilder, Scene, Texture } from "@babylonjs/core";
+import { Color4, Mesh, MeshBuilder, Scene, Texture } from "@babylonjs/core";
 import { ToonMaterial } from "./material/ToonMaterial";
 
 export class Planet {
@@ -47,6 +47,7 @@ export class Planet {
       scene
     );
     planet.material = ToonMaterial.createMaterial(this._texture);
+
     this._planetMesh = planet;
   }
 
@@ -60,15 +61,15 @@ export class Planet {
     }
   }
 
-  getMesh() {
+  public getMesh() {
     return this._planetMesh;
   }
 
-  getRadius() {
+  public getRadius() {
     return this._diameter / 2;
   }
 
-  dispose() {
+  public dispose() {
     if (this._orbitMesh) {
       this._orbitMesh.dispose();
     }
@@ -77,7 +78,7 @@ export class Planet {
     }
   }
 
-  getName() {
+  public getName() {
     return this._name;
   }
 }

@@ -26,7 +26,6 @@ export class AwesomeAssetsManager extends AssetsManager {
     task.onSuccess = (task) => {
       this._meshes[name] = task.loadedMeshes[0];
       console.log("mesh loaded (", name, "): ", task.loadedMeshes[0]);
-      // put in local storage cache
       localStorage.setItem(name, JSON.stringify(task.loadedMeshes[0]));
     };
   }
@@ -35,10 +34,11 @@ export class AwesomeAssetsManager extends AssetsManager {
     return this._meshes[name];
   }
 
-  public addAndStoreTexture(name: string, url: string) {
-    const task = this.addTextureTask(name, url);
+  public static addAndStoreTexture(name: string, url: string) {
+    const instance = AwesomeAssetsManager.getInstance();
+    const task = instance.addTextureTask(name, url);
     task.onSuccess = (task) => {
-      this._textures[name] = task.texture;
+      instance._textures[name] = task.texture;
       console.log("texture loaded (", name, "): ", task.texture);
     };
   }
@@ -47,10 +47,11 @@ export class AwesomeAssetsManager extends AssetsManager {
     return AwesomeAssetsManager.getInstance()._textures[name];
   }
 
-  public addAndStoreCubeTexture(name: string, url: string) {
-    const task = this.addCubeTextureTask(name, url);
+  public static addAndStoreCubeTexture(name: string, url: string) {
+    const instance = AwesomeAssetsManager.getInstance();
+    const task = instance.addCubeTextureTask(name, url);
     task.onSuccess = (task) => {
-      this._cubeTextures[name] = task.texture;
+      instance._cubeTextures[name] = task.texture;
       console.log("texture loaded (", name, "): ", task.texture);
     };
   }

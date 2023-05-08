@@ -1,4 +1,4 @@
-import { AbstractMesh, Vector3 } from "@babylonjs/core";
+import { AbstractMesh } from "@babylonjs/core";
 import { Planet } from "./Planet";
 import { AwesomeAssetsManager } from "./utils/AwesomeAssetsManager";
 
@@ -9,7 +9,7 @@ export class PlanetManager {
     this._planets = [];
     let mercury = new Planet(
       "mercury",
-      200,
+      2000 / 4,
       0.0004,
       0.00001,
       4879 * this._scale,
@@ -17,7 +17,7 @@ export class PlanetManager {
     );
     let venus = new Planet(
       "venus",
-      350,
+      3500 / 4,
       0.0035,
       0.00001,
       12104 * this._scale,
@@ -25,7 +25,7 @@ export class PlanetManager {
     );
     let earth = new Planet(
       "earth",
-      500,
+      5000 / 4,
       0.003,
       0.00001,
       12742 * this._scale,
@@ -33,7 +33,7 @@ export class PlanetManager {
     );
     let mars = new Planet(
       "mars",
-      750,
+      7500 / 4,
       0.0024,
       0.00001,
       6779 * this._scale,
@@ -41,7 +41,7 @@ export class PlanetManager {
     );
     let jupiter = new Planet(
       "jupiter",
-      1000,
+      10000 / 4,
       0.0013,
       0.00001,
       139820 * this._scale,
@@ -49,7 +49,7 @@ export class PlanetManager {
     );
     let saturn = new Planet(
       "saturn",
-      1250,
+      12500 / 4,
       0.009,
       0.00001,
       116460 * this._scale,
@@ -57,7 +57,7 @@ export class PlanetManager {
     );
     let uranus = new Planet(
       "uranus",
-      1500,
+      15000 / 4,
       0.0007,
       0.00001,
       50724 * this._scale,
@@ -65,7 +65,7 @@ export class PlanetManager {
     );
     let neptune = new Planet(
       "neptune",
-      1750,
+      17500 / 4,
       0.0005,
       0.00001,
       49244 * this._scale,
@@ -73,7 +73,7 @@ export class PlanetManager {
     );
     let pluto = new Planet(
       "pluto",
-      2000,
+      20000 / 4,
       0.0004,
       0.00001,
       2376 * this._scale,
@@ -99,11 +99,11 @@ export class PlanetManager {
     });
   }
 
-  getPlanets() {
+  public getPlanets() {
     return this._planets;
   }
 
-  update(deltaTime) {
+  public update(deltaTime) {
     this._planets.forEach((planet) => {
       planet.update(deltaTime);
     });

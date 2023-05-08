@@ -1,6 +1,5 @@
 import { Mesh, Vector3 } from "@babylonjs/core";
 import { TrailsEffect } from "./TrailsEffect";
-import { Utils } from "../utils/Utils";
 import { ColorTheme } from '../colors/ColorTheme';
 
 export class TrailsManager {
@@ -27,7 +26,7 @@ export class TrailsManager {
         new TrailsEffect(i.toString(), 200, scene, spaceship, color)
       );
     }
-    this.setEmmitersPosition();
+    this._setEmmitersPosition();
   }
 
   public start() {
@@ -36,7 +35,7 @@ export class TrailsManager {
     });
   }
 
-  private setEmmitersPosition() {
+  private _setEmmitersPosition() {
     let angle = 0;
     let step = (2 * Math.PI) / this.trails.length;
     this.trails.forEach((trail) => {

@@ -8,6 +8,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
+import { ToonMaterial } from "./material/ToonMaterial";
 
 export class Dashboard {
   private _scene: Scene;
@@ -56,10 +57,7 @@ export class Dashboard {
     );
     this._uiTexture.background = "transparent";
     this._uiTexture.parseFromURLAsync("ui/FullDashboard.json").then(() => {
-      let material = new StandardMaterial("mat", this._scene);
-      material.diffuseTexture = this._uiTexture;
-      material.specularColor = new Color3(0, 0, 0);
-      material.emissiveColor = new Color3(1, 1, 1);
+      let material = ToonMaterial.createMaterial(this._uiTexture);
 
       this._screenMesh.material = material;
       this._grabElement();

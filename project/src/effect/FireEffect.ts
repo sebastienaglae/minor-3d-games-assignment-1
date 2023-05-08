@@ -5,20 +5,21 @@ import {
   Texture,
   Vector3,
 } from "@babylonjs/core";
+import { AwesomeAssetsManager } from '../utils/AwesomeAssetsManager';
 
 export class FireEffect extends ParticleSystem {
   constructor(scene: Scene, emitter: any) {
     super("fire", 2000, scene);
 
-    //Texture of each particle
-    this.particleTexture = new Texture("obj/flare.png", scene);
+    this.particleTexture = new Texture(
+      AwesomeAssetsManager.getTexture("trails"),
+      scene
+    );
 
-    // Where the particles come from
-    this.emitter = emitter; // the starting object, the emitter
-    this.minEmitBox = new Vector3(-0.15, -0.15, -0.15); // Starting all from
-    this.maxEmitBox = new Vector3(0.15, 0.15, 0.15); // To...
+    this.emitter = emitter; 
+    this.minEmitBox = new Vector3(-0.15, -0.15, -0.15); 
+    this.maxEmitBox = new Vector3(0.15, 0.15, 0.15);
 
-    // Colors of all particles
     this.color1 = new Color4(1, 0.5, 0, 1.0);
     this.color2 = new Color4(1, 0.5, 0, 1.0);
     this.colorDead = new Color4(0, 0, 0, 0.0);

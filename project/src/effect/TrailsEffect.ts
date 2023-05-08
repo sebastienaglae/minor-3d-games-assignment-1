@@ -1,11 +1,7 @@
 import {
   AbstractMesh,
-  Color4,
-  Mesh,
   MeshBuilder,
-  Particle,
   ParticleSystem,
-  Texture,
   Vector3,
 } from "@babylonjs/core";
 import { AwesomeAssetsManager } from "../utils/AwesomeAssetsManager";

@@ -1,17 +1,14 @@
 import {
   AbstractMesh,
-  Camera,
   Color4,
-  FreeCamera,
   GPUParticleSystem,
-  Mesh,
   MeshBuilder,
   ParticleSystem,
   Scene,
-  SphereParticleEmitter,
   Texture,
   Vector3,
 } from "@babylonjs/core";
+import { AwesomeAssetsManager } from "../utils/AwesomeAssetsManager";
 
 export class CloudEffect extends GPUParticleSystem {
   private _meshSpace: AbstractMesh;
@@ -33,7 +30,7 @@ export class CloudEffect extends GPUParticleSystem {
     this.isLocal = true;
     this.emitter.position = new Vector3(0, 0, 5);
 
-    this.particleTexture = new Texture("img/effects/smoke_15.png", scene);
+    this.particleTexture = AwesomeAssetsManager.getTexture("cloud");
 
     this.color1 = new Color4(0.8, 0.8, 0.8, 0.5);
     this.color2 = new Color4(0.95, 0.95, 0.95, 0.4);

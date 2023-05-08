@@ -10,7 +10,6 @@ import {
   Vector3,
   Vector4,
   Matrix,
-  Mesh,
   MeshBuilder,
 } from "@babylonjs/core";
 import { Dashboard } from "./Dashboard";
@@ -19,7 +18,7 @@ import { Utils } from "./utils/Utils";
 import { CloudEffect } from "./effect/CloudEffect";
 import { PlanetManager } from "./PlanetManager";
 import { Planet } from "./Planet";
-import { ColorFactory } from './colors/ColorFactory';
+import { ColorFactory } from "./colors/ColorFactory";
 
 export class Spaceship {
   private _parentMesh: AbstractMesh;
@@ -90,7 +89,7 @@ export class Spaceship {
     this._rotationSpeedVer = 0;
     this._maxRotationSpeed = 0.05;
     this._rotationAcceleration = 0.001;
-    this._rotationDeceleration = 0.0005; // 0.0025
+    this._rotationDeceleration = 0.0005;
     this._isGoingUp = false;
     this._isGoingDown = false;
     this._isGoingLeft = false;
@@ -114,19 +113,39 @@ export class Spaceship {
   onSpawnSuccess(result: ISceneLoaderAsyncResult) {
     this._spaceship = result.meshes[0];
     this._setupSpaceship();
+    this._applyShader();
     this._setupCamera();
+    this._setupKeyboardInput();
+    this._setupScrollWheelInput();
+    this._setupShake();
+    this._setupEffect();
+    this._setupDashboard();
 
     this._scene.onBeforeRenderObservable.add(() => {
       this._update();
     });
+  }
 
-    this._setupKeyboardInput();
-    this._setupScrollWheelInput();
-    this._projectionMatrix = this._camera.getProjectionMatrix();
-    this._r = this._projectionMatrix.getRow(3);
-    this._t = 0;
+  private _applyShader() {
+    // //apply toon shader keep the material using ToonMaterial class
+    // //for each mesh
+    // for (let mesh of this._spaceship.getChildMeshes()) {
+    //   console.log(mesh.name);
+    //   //get the albedo texture
+    //   let albedoTexture = mesh.material.getActiveTextures()[0];
+    //   if (albedoTexture === undefined) {
+    //     console.log("albedoTexture undefined");
+    //     continue;
+    //   }
+    //   mesh.material = ToonMaterial.createMaterial(albedoTexture);
+    // }
+  }
 
+  private _setupDashboard() {
     this._dashboard = new Dashboard(this._scene, this._spaceship);
+  }
+
+  private _setupEffect() {
     this._trailsEntry = new TrailsManager(
       50,
       this._scene,
@@ -152,6 +171,12 @@ export class Spaceship {
 
     this._cloudEffect = new CloudEffect(this._scene, this._spaceship);
     this._cloudEffect.start();
+  }
+
+  private _setupShake() {
+    this._projectionMatrix = this._camera.getProjectionMatrix();
+    this._r = this._projectionMatrix.getRow(3);
+    this._t = 0;
   }
 
   private _setupSpaceship() {
@@ -249,6 +274,8 @@ export class Spaceship {
   }
 
   private _update() {
+    this._updateDashboard();
+    this._shakeCamera();
     if (this._lockMovement) return;
 
     let isPressed = false;
@@ -298,13 +325,6 @@ export class Spaceship {
       }
     }
 
-    // if (!this._isGoingForward) {
-    //   if (this._speed > 0) {
-    //     this._speed -= this._deceleration;
-    //   }
-    // }
-    this._velocity = this._parentMesh.forward.scale(-this._speed);
-
     if (!isPressed) {
       // Horizontal deceleration (left and right)
       if (this._rotationSpeedHori > 0) {
@@ -348,10 +368,18 @@ export class Spaceship {
     this._turnHorizontal(this._rotationSpeedHori);
     this._turnVertical(this._rotationSpeedVer);
 
+    this._velocity = this._parentMesh.forward.scale(-this._speed);
     this._parentMesh.moveWithCollisions(this._velocity);
-    this._computeSpeedKm();
-    this._shakeCamera();
 
+    this._computeSpeedKm();
+    this._updateEffects();
+
+    if (this._planetData.distance <= 10) {
+      this._fakeStop();
+    }
+  }
+
+  private _updateEffects() {
     this._trailsSpeed.changeEmitRate(
       Utils.clamp(0, this._maxSpeed, -this._speed)
     );
@@ -365,11 +393,6 @@ export class Spaceship {
     this._trailsEntry.changeEmitRate(
       1 - Utils.clamp(0, 150, this._planetData.distance)
     );
-    if (this._planetData.distance <= 10) {
-      this._fakeStop();
-    }
-
-    this._updateDashboard();
   }
 
   private _fakeStop() {
@@ -406,9 +429,9 @@ export class Spaceship {
     if (this._lockMovement) speed = this._lockSpeed;
 
     this._r.x +=
-      Math.cos(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, speed);
+      Math.cos(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, -speed);
     this._r.y +=
-      Math.sin(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, speed);
+      Math.sin(this._t) * 0.01 * Utils.clamp(0, this._maxSpeed, -speed);
     this._projectionMatrix.setRowFromFloats(
       3,
       this._r.x,

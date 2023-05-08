@@ -1,12 +1,10 @@
 import {
-  Camera,
   CannonJSPlugin,
   Color3,
   Engine,
   HemisphericLight,
   MeshBuilder,
   Scene,
-  SceneLoader,
   StandardMaterial,
   Texture,
   UniversalCamera,
@@ -17,12 +15,7 @@ import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
 import { Spaceship } from "./Spaceship";
-import { FireEffect } from "./effect/FireEffect";
-import { ToonMaterial } from "./material/ToonMaterial";
-import { AwesomeFollowCamera } from "./scrap/AwesomeFollowCamera";
 import { AwesomeAssetsManager } from "./utils/AwesomeAssetsManager";
-import { CloudPlanet } from "./scrap/CloudPlanet";
-import { Planet } from "./Planet";
 import { PlanetManager } from "./PlanetManager";
 
 export class App {
@@ -81,20 +74,20 @@ export class App {
 
   private loadAsset() {
     for (let i = 1; i <= 17; i++) {
-      AwesomeAssetsManager.getInstance().addAndStoreTexture(
+      AwesomeAssetsManager.addAndStoreTexture(
         `planet${i}`,
         `img/planets/${i}.png`
       );
     }
-    AwesomeAssetsManager.getInstance().addAndStoreCubeTexture(
+    AwesomeAssetsManager.addAndStoreCubeTexture(
       "skyBox",
       "img/skybox/skybox"
     );
-    AwesomeAssetsManager.getInstance().addAndStoreTexture(
+    AwesomeAssetsManager.addAndStoreTexture(
       "cloud",
       "img/effects/smoke_15.png"
     );
-    AwesomeAssetsManager.getInstance().addAndStoreTexture(
+    AwesomeAssetsManager.addAndStoreTexture(
       "trails",
       "img/effects/flare.png"
     );
